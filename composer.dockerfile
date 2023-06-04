@@ -1,6 +1,6 @@
 FROM composer:latest
 
-ENV COMPOSERUSER=laravel
-ENV COMPOSERGROUP=laravel
+# ARG COMPOSERUSER
+# ARG COMPOSERGROUP
 
-RUN adduser -g ${COMPOSERGROUP} -s /bin/sh -D ${COMPOSERUSER}
+# RUN adduser -g "$COMPOSERGROUP" -s /bin/sh -D "$COMPOSERUSER"

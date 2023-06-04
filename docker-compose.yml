@@ -1,5 +1,17 @@
 version: '3.8'
 
+x-volume-env: &volume-env
+  volumes:
+    - ./src:/var/www/html
+  #env_file:
+    #- .env
+  environment:
+    - NGINXUSER=${NGINXUSER}
+    - NGINXGROUP=${NGINXGROUP}
+    - PHPGROUP=${PHPGROUP}
+    - PHPUSER=${PHPUSER}
+    - COMPOSERUSER=${COMPOSERUSER}
+    - COMPOSERGROUP=${COMPOSERGROUP}
 services:
   nginx:
     build: 
@@ -7,50 +19,57 @@ services:
       dockerfile: nginx.dockerfile
     ports:
       - "89:80"
-    volumes:
-      - ./src:/var/www/html
+      - "543:443"
     depends_on:
       - mysql
       - php
+    restart: unless-stopped
+    <<: *volume-env
+
   mysql:
     image: mariadb:10.5
     ports:
       - "3316:3306"
     environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: laravel
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_PASSWORD: secret
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
-      - ./mysql:/var/lib/mysql
+      - ./etc/mysql:/var/lib/mysql
+    restart: unless-stopped
+
   php:
     build: 
       context: .
+      args:
+        PHPUSER: ${PHPUSER}
+        PHPGROUP: ${PHPGROUP}
       dockerfile: php.dockerfile
-    volumes:
-      - ./src:/var/www/html
+    restart: unless-stopped
+    ports:
+      - 8010:9000
+    <<: *volume-env
+
   composer:
     build: 
       context: .
       dockerfile: composer.dockerfile
-    volumes:
-      - ./src:/var/www/html
     working_dir: /var/www/html
+    <<: *volume-env
+
   npm:
     image: node:current-alpine
-    volumes:
-      - ./src:/var/www/html
     entrypoint: ["npm"]
     working_dir: /var/www/html
+    
   artisan:
     build:
       context: .
       dockerfile: php.dockerfile
-    volumes:
-        - ./src:/var/www/html
     working_dir: /var/www/html
     depends_on:
       - mysql
     entrypoint: ["php", "/var/www/html/artisan"]
-
-
+    volumes:
+    - ./src:/var/www/html

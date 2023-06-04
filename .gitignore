@@ -1,3 +1,4 @@
-mysql/
+etc/mysql/
 .vscode/
 .env
+.DS_Store
