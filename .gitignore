@@ -2,3 +2,4 @@ etc/mysql/
 .vscode/
 .env
 .DS_Store
+src-old/
