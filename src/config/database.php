@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DBM_CONNECTION', 'mongodb'),
 
     /*
     |--------------------------------------------------------------------------
@@ -34,6 +34,11 @@ return [
     */
 
     'connections' => [
+        'mongodb' => [
+            'driver' => env('DBM_CONNECTION'),
+            'dsn' => env('DBM_URI', "mongodb+srv://".env('DBM_USERNAME').":".env('DBM_PASSWORD')."@".env('DBM_HOST')."/?retryWrites=true&w=majority"),
+            'database' => env('DBM_DATABASE'),
+        ],
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DATABASE_URL'),
