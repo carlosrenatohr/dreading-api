@@ -86,6 +86,17 @@ A reading document looks like:
 
 Root `.env` (from `.env.demo`) drives docker-compose: MariaDB credentials plus `PHPUID`/`PHPGID`, the host UID/GID the PHP containers run as (defaults `1000`/`1001`). If your `id -u`/`id -g` differ, set them to match so files the app writes into `./src` stay owned by you. Host ports: nginx `89`, MariaDB `3316`, mongo `27018`.
 
+### Production (MongoDB Atlas)
+
+In production the readings live in a **MongoDB Atlas** cluster (populated by `dreading-scrape`). Point the API at it by setting `DBM_URI` to the Atlas connection string and `DBM_DATABASE` to the cluster's database, supplied via environment/secrets rather than committed:
+
+```
+DBM_URI="mongodb+srv://<user>:<pass>@<cluster>/?retryWrites=true&w=majority"
+DBM_DATABASE=dailyreading
+```
+
+The local `mongo` compose service and MariaDB are dev-only; MariaDB backs Laravel's system tables and is not needed to serve readings.
+
 ## Notes
 
 - The PHP containers (`php`, `artisan`, `composer`) run as the host UID/GID (`PHPUID`/`PHPGID`) instead of `www-data`, so php-fpm can write `storage/logs` and `bootstrap/cache` on the host-owned `./src` mount with no `chmod` — and files the app writes stay owned by you.
