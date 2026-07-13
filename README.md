@@ -57,6 +57,8 @@ Base path `/api`. All reading endpoints are public `GET` and read-only.
 | ANY | `/api/v2/readings` | `301` redirect to `readings.index` |
 | GET | `/api/user` | Authenticated user (`auth:sanctum`) |
 
+The list endpoints (`today`, `date/{date}`, `last_day`, `last_week`, `last_month`) are **paginated**: they return a Laravel paginator envelope (`{ "data": [...], "per_page", "total", ... }`) and accept `?per_page=` (default 15, max 100). `last` / `readings` return a single reading object.
+
 A reading document looks like:
 
 ```json

@@ -54,7 +54,7 @@ class ReadingEndpointsTest extends TestCase
         $response = $this->getJson("/api/v1/readings/date/{$today}");
 
         $response->assertStatus(200);
-        $response->assertJsonStructure([['title', 'lecturas']]);
+        $response->assertJsonStructure(['data' => [['title', 'lecturas']]]);
         $response->assertJsonFragment(['title' => 'Test reading']);
     }
 
@@ -71,7 +71,27 @@ class ReadingEndpointsTest extends TestCase
         $response = $this->getJson('/api/v1/readings/today');
 
         $response->assertStatus(200);
+        $response->assertJsonStructure(['data', 'per_page', 'total']);
         $response->assertJsonFragment(['title' => 'Test reading']);
+    }
+
+    public function test_list_is_paginated()
+    {
+        for ($i = 0; $i < 2; $i++) {
+            Reading::create([
+                'title' => "Extra {$i}",
+                'date_title' => '13/07/2026',
+                'date_raw' => date('Y-m-d').' 00:00:00',
+                'lecturas' => [],
+            ]);
+        }
+
+        $response = $this->getJson('/api/v1/readings/today?per_page=2');
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('per_page', 2);
+        $this->assertCount(2, $response->json('data'));
+        $this->assertSame(3, $response->json('total'));
     }
 
     public function test_v2_redirects_to_v1()

@@ -14,7 +14,9 @@ Prioritized backlog for reviving this API. References use `file:line` from the c
 ## Already addressed in this pass
 - **`lastReading()` no longer loads the whole collection** (was P1): now `Reading::orderByDesc('date_raw')->first()`.
 - **Dropped the misleading empty relational readings migration** (partial P0.2): `2023_06_04_..._create_readings_table.php` removed; the readings live in MongoDB. Real CRUD is still open (below).
-- **`{date}` input is validated** (partial P1.5): `from_date()` returns a `422` JSON error for anything that isn't `Y-m-d`. List-endpoint pagination is still open (below).
+- **`{date}` input is validated** (partial P1.5): `from_date()` returns a `422` JSON error for anything that isn't `Y-m-d`.
+- **List endpoints are paginated** (P1.4): `today`/`date`/`last_day`/`last_week`/`last_month` return a Laravel paginator envelope honoring `?per_page` (default 15, max 100); `lastReading` stays a single object.
+- **Fixed the v2 redirect**: `/api/v2/readings` returned 500 (a closure was passed to `Route::redirect`); it now 301s to `/api/v1/readings`.
 
 ## P0 — needed for real (production) use
 1. **Wire production data.** In production the readings live in **MongoDB Atlas**; set `DBM_URI` (or `DBM_HOST/USERNAME/PASSWORD`) via environment/secrets. Alternatively point the API at the same Mongo the scraper writes to.
@@ -22,7 +24,7 @@ Prioritized backlog for reviving this API. References use `file:line` from the c
 
 ## P1 — correctness & performance
 3. **Fragile date filtering.** `date_raw` is matched with SQL-style `LIKE "%...%"` and compared `>=` against Carbon datetimes on a schemaless string field (`src/app/Repositories/ReadingRepository.php`). Store the date as a real BSON date and query with range operators, or normalize `date_raw` and document its exact format.
-4. **Pagination & error handling.** `{date}` is now validated, but the list endpoints (`last_week`, `last_month`, etc.) still return unbounded arrays. Paginate them and standardize error responses.
+4. **Standardize error responses.** Beyond the `{date}` 422, adopt a consistent error envelope across the endpoints (e.g. for empty results or not-found).
 
 ## P2 — security & hardening
 6. **Endpoints are public.** All `/api/v1/readings*` routes have no auth or rate limiting (`src/routes/api.php`). Add throttling at minimum; add auth if the data warrants it.
