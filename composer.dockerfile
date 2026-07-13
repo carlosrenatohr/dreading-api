@@ -1,6 +1,0 @@
-FROM composer:latest
-
-# ARG COMPOSERUSER
-# ARG COMPOSERGROUP
-
-# RUN adduser -g "$COMPOSERGROUP" -s /bin/sh -D "$COMPOSERUSER"

@@ -14,7 +14,7 @@ x-volume-env: &volume-env
     - COMPOSERGROUP=${COMPOSERGROUP}
 services:
   nginx:
-    build: 
+    build:
       context: .
       dockerfile: nginx.dockerfile
     ports:
@@ -22,6 +22,7 @@ services:
       - "543:443"
     depends_on:
       - mysql
+      - mongo
       - php
     restart: unless-stopped
     <<: *volume-env
@@ -39,6 +40,16 @@ services:
       - ./etc/mysql:/var/lib/mysql
     restart: unless-stopped
 
+  # Primary datastore for the readings. Locally this replaces MongoDB Atlas so the
+  # API can serve data with zero cloud credentials.
+  mongo:
+    image: mongo:7
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
   php:
     build: 
       context: .
@@ -52,10 +63,11 @@ services:
     <<: *volume-env
 
   composer:
-    build: 
+    build:
       context: .
-      dockerfile: composer.dockerfile
+      dockerfile: php.dockerfile
     working_dir: /var/www/html
+    entrypoint: ["composer"]
     <<: *volume-env
 
   npm:
@@ -70,6 +82,10 @@ services:
     working_dir: /var/www/html
     depends_on:
       - mysql
+      - mongo
     entrypoint: ["php", "/var/www/html/artisan"]
     volumes:
     - ./src:/var/www/html
+
+volumes:
+  mongo-data:
