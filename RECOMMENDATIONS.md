@@ -17,6 +17,7 @@ Prioritized backlog for reviving this API. References use `file:line` from the c
 - **`{date}` input is validated** (partial P1.5): `from_date()` returns a `422` JSON error for anything that isn't `Y-m-d`.
 - **List endpoints are paginated** (P1.4): `today`/`date`/`last_day`/`last_week`/`last_month` return a Laravel paginator envelope honoring `?per_page` (default 15, max 100); `lastReading` stays a single object.
 - **Fixed the v2 redirect**: `/api/v2/readings` returned 500 (a closure was passed to `Route::redirect`); it now 301s to `/api/v1/readings`.
+- **Rate limit covered + security posture documented** (P2): a feature test asserts the 60 req/min `throttle:api`; the intentional no-auth-for-public-data decision is in the README.
 
 ## P0 — needed for real (production) use
 1. **Wire production data.** In production the readings live in **MongoDB Atlas**; set `DBM_URI` (or `DBM_HOST/USERNAME/PASSWORD`) via environment/secrets. Alternatively point the API at the same Mongo the scraper writes to.
@@ -27,7 +28,7 @@ Prioritized backlog for reviving this API. References use `file:line` from the c
 4. **Standardize error responses.** Beyond the `{date}` 422, adopt a consistent error envelope across the endpoints (e.g. for empty results or not-found).
 
 ## P2 — security & hardening
-6. **Endpoints are public.** All `/api/v1/readings*` routes have no auth or rate limiting (`src/routes/api.php`). Add throttling at minimum; add auth if the data warrants it.
+6. **Auth (optional).** All `/api/*` routes are already rate-limited to 60 req/min per IP via Laravel's default `throttle:api` (covered by a feature test). The reading data is public liturgical text, so the reading endpoints are intentionally unauthenticated; revisit only if a private/write surface is added.
 7. **Storage permissions.** php-fpm runs as `www-data` against a host-owned `./src` mount, so `storage/logs` isn't writable (worked around with `chmod` in the README). Cleaner fix: build the image to run as the host UID/GID (the commented `PHPUSER`/`NGINXUSER` logic in `php.dockerfile` / `nginx.dockerfile`), or add an entrypoint that fixes ownership.
 8. **Mongo-vs-MariaDB split-brain.** Default connection is `mongodb`, yet the stack ships MariaDB and a relational readings migration. Document the two-store setup clearly or remove the unused relational path.
 

@@ -101,4 +101,13 @@ class ReadingEndpointsTest extends TestCase
         $response->assertStatus(301);
         $response->assertRedirect('/api/v1/readings');
     }
+
+    public function test_endpoints_are_rate_limited()
+    {
+        for ($i = 0; $i < 60; $i++) {
+            $this->getJson('/api/v1/readings/last')->assertStatus(200);
+        }
+
+        $this->getJson('/api/v1/readings/last')->assertStatus(429);
+    }
 }

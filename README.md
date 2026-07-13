@@ -90,3 +90,4 @@ Root `.env` (from `.env.demo`) drives docker-compose: MariaDB credentials plus `
 
 - The PHP containers (`php`, `artisan`, `composer`) run as the host UID/GID (`PHPUID`/`PHPGID`) instead of `www-data`, so php-fpm can write `storage/logs` and `bootstrap/cache` on the host-owned `./src` mount with no `chmod` — and files the app writes stay owned by you.
 - `ReadingSeeder` is a local convenience only — production data comes from `dreading-scrape` writing to the same `readings` collection.
+- **Rate limiting & auth:** all `/api/*` routes are rate-limited to 60 requests/minute per IP (Laravel's default `throttle:api`, configured in `RouteServiceProvider`). The reading data is public liturgical text, so the reading endpoints are intentionally left unauthenticated; only `/api/user` requires a Sanctum token.
