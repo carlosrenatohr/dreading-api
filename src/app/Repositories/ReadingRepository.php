@@ -23,7 +23,7 @@ class ReadingRepository implements ReadingInterface
     
     public function lastReading()
     {
-        $reading = Reading::all()->last();
+        $reading = Reading::orderByDesc('date_raw')->first();
         return $reading;
     }
 
