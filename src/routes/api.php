@@ -20,7 +20,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::prefix('v1')->group(function() {
-    Route::get('/readings', [ReadingController::class, 'last_reading']) // 'App\Http\Controllers\ReadingController@index'
+    // Index of the collection currently returns the most recent reading.
+    Route::get('/readings', [ReadingController::class, 'last_reading'])
         ->name('readings.index');
     Route::get('/readings/date/{date}', [ReadingController::class, 'from_date']);
     Route::get('/readings/last', [ReadingController::class, 'last_reading']);

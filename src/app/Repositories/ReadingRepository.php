@@ -17,7 +17,7 @@ class ReadingRepository implements ReadingInterface
     public function fromDate($date)
     {
         $selected_date = date('Y-m-d', strtotime($date));
-        $reading = Reading::where('date_raw', 'LIKE', "%{$selected_date}%")->get();;
+        $reading = Reading::where('date_raw', 'LIKE', "%{$selected_date}%")->get();
         return $reading;
     }
     
