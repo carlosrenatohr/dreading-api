@@ -21,8 +21,12 @@
         <env name="APP_ENV" value="testing"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_DRIVER" value="array"/>
-        <!-- <env name="DB_CONNECTION" value="sqlite"/> -->
-        <!-- <env name="DB_DATABASE" value=":memory:"/> -->
+        <!-- Reading is a Mongo model, so tests keep the default `mongodb` connection
+             but point it at a separate database on the same local mongo service.
+             This isolates the test data from the dev `dailyreading` database. -->
+        <env name="DBM_CONNECTION" value="mongodb"/>
+        <env name="DBM_URI" value="mongodb://mongo:27017"/>
+        <env name="DBM_DATABASE" value="dailyreading_test"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
