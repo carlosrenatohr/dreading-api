@@ -102,3 +102,8 @@ The local `mongo` compose service and MariaDB are dev-only; MariaDB backs Larave
 - The PHP containers (`php`, `artisan`, `composer`) run as the host UID/GID (`PHPUID`/`PHPGID`) instead of `www-data`, so php-fpm can write `storage/logs` and `bootstrap/cache` on the host-owned `./src` mount with no `chmod` — and files the app writes stay owned by you.
 - `ReadingSeeder` is a local convenience only — production data comes from `dreading-scrape` writing to the same `readings` collection.
 - **Rate limiting & auth:** all `/api/*` routes are rate-limited to 60 requests/minute per IP (Laravel's default `throttle:api`, configured in `RouteServiceProvider`). The reading data is public liturgical text, so the reading endpoints are intentionally left unauthenticated; only `/api/user` requires a Sanctum token.
+
+## More
+
+- [VISION.md](./VISION.md) — where this is headed: daily AI reflections & art, an app for every age, community analytics.
+- `./scripts/e2e.sh` — end-to-end check that runs the real scraper into this stack's MongoDB and asserts the endpoints serve the live readings (including a Sunday second reading).
