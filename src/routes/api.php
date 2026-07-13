@@ -33,8 +33,5 @@ Route::prefix('v1')->group(function() {
 });
 
 Route::prefix('v2')->group(function() {
-    Route::redirect('/readings', function() {
-        return redirect()->route('readings.index');
-    }, 301);
-    }
-);
+    Route::redirect('/readings', '/api/v1/readings', 301);
+});

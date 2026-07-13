@@ -73,4 +73,12 @@ class ReadingEndpointsTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonFragment(['title' => 'Test reading']);
     }
+
+    public function test_v2_redirects_to_v1()
+    {
+        $response = $this->get('/api/v2/readings');
+
+        $response->assertStatus(301);
+        $response->assertRedirect('/api/v1/readings');
+    }
 }
