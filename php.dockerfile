@@ -1,17 +1,9 @@
 FROM php:8.2-fpm
 
-# Copy the .env file to the working directory
-# ENV PHPUSER laravel
-# ENV PHPGROUP laravel
-
-# # Create laravel user and group
-# RUN addgroup --system ${PHPGROUP} && adduser --system --no-create-home --ingroup ${PHPGROUP} ${PHPUSER}
-# # RUN addgroup -S ${PHPGROUP} && adduser --system ${PHPUSER} -G ${PHPGROUP}
-# # Update PHP-FPM configuration
-# RUN sed -i "s/user = www-data/user = ${PHPUSER}/g" /usr/local/etc/php-fpm.d/www.conf
-# RUN sed -i "s/group = www-data/group = ${PHPGROUP}/g" /usr/local/etc/php-fpm.d/www.conf
-
-# RUN mkdir -p /var/www/html/public
+# The container runs as the host UID/GID (see docker-compose `user:`) so the
+# bind-mounted ./src stays host-writable. Drop the pool user/group directives,
+# which php-fpm only honors as root and otherwise warns about.
+RUN sed -i 's/^user = www-data/;&/; s/^group = www-data/;&/' /usr/local/etc/php-fpm.d/www.conf
 
 RUN apt-get -y update && apt-get install -y \
     libssl-dev pkg-config libzip-dev unzip git
@@ -38,12 +30,6 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www/html
-
-# Set proper permissions for the working directory
-# RUN chown -R ${PHPUSER}:${PHPGROUP} /var/www/html
-
-# Switch to the laravel user
-# USER ${PHPUSER}
 
 CMD ["php-fpm", "-y", "/usr/local/etc/php-fpm.conf", "-R"]
 

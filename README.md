@@ -26,7 +26,6 @@ docker compose build                              # builds php-fpm image with ex
 docker compose up -d nginx                        # starts nginx, php, mariadb, mongo
 docker compose run --rm composer install
 docker compose run --rm artisan key:generate --force
-chmod -R 777 src/storage src/bootstrap/cache      # let php-fpm (www-data) write logs/cache
 docker compose run --rm artisan db:seed --class=ReadingSeeder --force   # one sample reading
 ```
 
@@ -83,9 +82,9 @@ A reading document looks like:
 | `DBM_URI` | Mongo DSN (used verbatim when set) | `mongodb://mongo:27017` | `mongodb+srv://user:pass@cluster/...` |
 | `DBM_DATABASE` | Database name | `dailyreading` | `dailyreading` |
 
-Root `.env` (from `.env.demo`) drives docker-compose: MariaDB credentials and the (currently unused) `*USER`/`*GROUP` build args. Host ports: nginx `89`, MariaDB `3316`, mongo `27018`.
+Root `.env` (from `.env.demo`) drives docker-compose: MariaDB credentials plus `PHPUID`/`PHPGID`, the host UID/GID the PHP containers run as (defaults `1000`/`1001`). If your `id -u`/`id -g` differ, set them to match so files the app writes into `./src` stay owned by you. Host ports: nginx `89`, MariaDB `3316`, mongo `27018`.
 
 ## Notes
 
-- On first boot Laravel's `storage/` is host-owned but php-fpm runs as `www-data`; the `chmod` step above avoids a "log could not be opened" error. See [RECOMMENDATIONS.md](./RECOMMENDATIONS.md) for a cleaner fix.
+- The PHP containers (`php`, `artisan`, `composer`) run as the host UID/GID (`PHPUID`/`PHPGID`) instead of `www-data`, so php-fpm can write `storage/logs` and `bootstrap/cache` on the host-owned `./src` mount with no `chmod` — and files the app writes stay owned by you.
 - `ReadingSeeder` is a local convenience only — production data comes from `dreading-scrape` writing to the same `readings` collection.

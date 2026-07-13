@@ -1,17 +1,9 @@
 version: '3.8'
 
-x-volume-env: &volume-env
+x-app-src: &app-src
   volumes:
     - ./src:/var/www/html
-  #env_file:
-    #- .env
-  environment:
-    - NGINXUSER=${NGINXUSER}
-    - NGINXGROUP=${NGINXGROUP}
-    - PHPGROUP=${PHPGROUP}
-    - PHPUSER=${PHPUSER}
-    - COMPOSERUSER=${COMPOSERUSER}
-    - COMPOSERGROUP=${COMPOSERGROUP}
+
 services:
   nginx:
     build:
@@ -25,7 +17,7 @@ services:
       - mongo
       - php
     restart: unless-stopped
-    <<: *volume-env
+    <<: *app-src
 
   mysql:
     image: mariadb:10.5
@@ -51,24 +43,27 @@ services:
     restart: unless-stopped
 
   php:
-    build: 
+    build:
       context: .
-      args:
-        PHPUSER: ${PHPUSER}
-        PHPGROUP: ${PHPGROUP}
       dockerfile: php.dockerfile
+    # Run php-fpm as the host user so files written to the bind-mounted
+    # ./src (storage/logs, bootstrap/cache) stay host-owned and writable.
+    user: "${PHPUID:-1000}:${PHPGID:-1000}"
     restart: unless-stopped
     ports:
       - 8010:9000
-    <<: *volume-env
+    <<: *app-src
 
   composer:
     build:
       context: .
       dockerfile: php.dockerfile
     working_dir: /var/www/html
+    user: "${PHPUID:-1000}:${PHPGID:-1000}"
+    environment:
+      - HOME=/tmp
     entrypoint: ["composer"]
-    <<: *volume-env
+    <<: *app-src
 
   npm:
     image: node:current-alpine
@@ -80,12 +75,12 @@ services:
       context: .
       dockerfile: php.dockerfile
     working_dir: /var/www/html
+    user: "${PHPUID:-1000}:${PHPGID:-1000}"
     depends_on:
       - mysql
       - mongo
     entrypoint: ["php", "/var/www/html/artisan"]
-    volumes:
-    - ./src:/var/www/html
+    <<: *app-src
 
 volumes:
   mongo-data:
