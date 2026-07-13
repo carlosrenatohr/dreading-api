@@ -11,14 +11,18 @@ Prioritized backlog for reviving this API. References use `file:line` from the c
 - `App\Models\Reading`: added `$fillable`; new `ReadingSeeder` inserts a sample reading for local runs.
 - Tidied `ReadingRepository` (stray `;;`) and the stale route comment in `routes/api.php`.
 
+## Already addressed in this pass
+- **`lastReading()` no longer loads the whole collection** (was P1): now `Reading::orderByDesc('date_raw')->first()`.
+- **Dropped the misleading empty relational readings migration** (partial P0.2): `2023_06_04_..._create_readings_table.php` removed; the readings live in MongoDB. Real CRUD is still open (below).
+- **`{date}` input is validated** (partial P1.5): `from_date()` returns a `422` JSON error for anything that isn't `Y-m-d`. List-endpoint pagination is still open (below).
+
 ## P0 — needed for real (production) use
 1. **Wire production data.** In production the readings live in **MongoDB Atlas**; set `DBM_URI` (or `DBM_HOST/USERNAME/PASSWORD`) via environment/secrets. Alternatively point the API at the same Mongo the scraper writes to.
-2. **"CRUD" is read-only.** Despite the `feat(api): Add reading crud manager` commit, only read endpoints exist. Either implement create/update/delete or rename accordingly. The `2023_06_04_..._create_readings_table.php` migration builds an **empty relational table** (`id` + `timestamps`) that neither matches the Mongo document shape nor the store the model uses — drop it or replace it with real intent.
+2. **Implement (or drop) CRUD.** Despite the `feat(api): Add reading crud manager` commit, only read endpoints exist. Either implement create/update/delete or rename accordingly. (The vestigial relational migration was removed — see above.)
 
 ## P1 — correctness & performance
-3. **`lastReading()` loads the whole collection.** `Reading::all()->last()` (`src/app/Repositories/ReadingRepository.php:24-27`) pulls every document into memory. Use `Reading::orderByDesc('date_raw')->first()`.
-4. **Fragile date filtering.** `date_raw` is matched with SQL-style `LIKE "%...%"` and compared `>=` against Carbon datetimes on a schemaless string field (`src/app/Repositories/ReadingRepository.php`). Store the date as a real BSON date and query with range operators, or normalize `date_raw` and document its exact format.
-5. **No validation / pagination / error handling** in `ReadingController`. Add input validation for `{date}`, paginate list endpoints, and return proper error responses.
+3. **Fragile date filtering.** `date_raw` is matched with SQL-style `LIKE "%...%"` and compared `>=` against Carbon datetimes on a schemaless string field (`src/app/Repositories/ReadingRepository.php`). Store the date as a real BSON date and query with range operators, or normalize `date_raw` and document its exact format.
+4. **Pagination & error handling.** `{date}` is now validated, but the list endpoints (`last_week`, `last_month`, etc.) still return unbounded arrays. Paginate them and standardize error responses.
 
 ## P2 — security & hardening
 6. **Endpoints are public.** All `/api/v1/readings*` routes have no auth or rate limiting (`src/routes/api.php`). Add throttling at minimum; add auth if the data warrants it.
