@@ -2,6 +2,8 @@
 
 *Making the Catholic daily readings something people actually look forward to — across every age.*
 
+> **Status update (2026-07-14):** Phases 0–3 are **live**. The stack migrated to **Cloudflare-native** (Workers + Hono + **D1** replacing MongoDB, R2 for art, Workers AI for enrichment, Pages for the PWA/landing) — the MongoDB architecture described below is the original design; the live system is the Worker `dreading-api-worker`. The daily enrichment (reflection + kids version + message + questions + a generated image) runs automatically, and the PWA, Telegram bot, and landing all serve it. See the project [README](../README.md) for the live map and [ROADMAP.md](./ROADMAP.md) for what's next. The vision prose below stays as the north star.
+
 ## Why this matters
 
 Millions pray the daily liturgical readings ("lecturas del día"). But the way they're delivered today is mostly static, text-heavy, and unengaging — a wall of text on a dated website. Meanwhile the same audience lives on beautiful, dynamic, bite-sized mobile experiences everywhere else. There's a real gap: **the most meaningful daily content in a believer's life has the worst daily UX.**
