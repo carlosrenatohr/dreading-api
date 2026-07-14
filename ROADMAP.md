@@ -43,5 +43,6 @@ Not needed yet (no forms). When we add a donation/contact form or auth, protect 
 - **Voice** — Alexa / Google "lee el evangelio de hoy" (TTS).
 - **Home-screen widgets** (iOS/Android) — glanceable daily gospel line + art.
 - **Reading plans** — Advent / Lent guided PWA over the archive.
+- **Liturgical calendar widget** — full-month view, navigate months, minimalist (cleaner than ciudadredonda's `/calendario`), **highlighting special celebrations** by liturgical colour (green Ordinary, purple Advent/Lent, gold feasts, red martyrs). Data from our **ingested readings** (we already store dated readings + derive the season from the title) rather than scraping their calendar page — another reason to keep ingesting ahead. Unlocks browsing + reading plans.
 
 **Cross-cutting unlocks:** historical backfill (walk the `/events/` `prev` links) → archive + reading plans; auth (later) → per-user streaks, favorites, push notifications.
