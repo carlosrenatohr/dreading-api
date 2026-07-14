@@ -45,9 +45,9 @@ COUNT=$(docker compose exec -T mongo mongosh --quiet dailyreading --eval 'print(
 
 echo "==> Assert the API serves the scraped content"
 
-# /last returns a single reading with content.
-curl -sf "$BASE/last" | python3 -c "import sys,json;d=json.load(sys.stdin);assert d.get('title') and d.get('lecturas'),'no reading';print('  last:',d['date_raw'],'-',d['title'][:40])" || fail "/last"
-pass "/last returns a reading"
+# /last returns a single reading, enriched (reflection etc.) and schema-versioned.
+curl -sf "$BASE/last" | python3 -c "import sys,json;d=json.load(sys.stdin);assert d.get('title') and d.get('lecturas'),'no reading';assert d.get('reflection') and d.get('source_version'),'not enriched';print('  last:',d['date_raw'],'-',d['title'][:36],'| enriched:',bool(d.get('reflection')))" || fail "/last enriched"
+pass "/last returns an enriched reading"
 
 # A stored date returns 200 with a paginated data envelope.
 DATE=$(docker compose exec -T mongo mongosh --quiet dailyreading --eval 'print(db.readings.find().sort({date_raw:-1}).limit(1).next().date_raw.slice(0,10))' | tr -d '[:space:]')
