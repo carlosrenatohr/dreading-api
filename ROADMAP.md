@@ -16,6 +16,14 @@ Planned next steps beyond the live stack (scraper → worker+D1+AI → PWA + Tel
 
 **Order:** P1 beacon → P2 Analytics Engine events (worker + PWA) → P3 dashboard.
 
+> **Enable first (dashboard):** Analytics Engine must be turned on for the account (`…/workers/analytics-engine`) before the Worker can bind it; Web Analytics is a 1-click toggle on the Pages project (auto-injects the beacon, no code).
+
+## 1b. CAPTCHA / anti-abuse (future — donations, contact, auth)
+
+Not needed yet (no forms). When we add a donation/contact form or auth, protect it:
+- **Cloudflare Turnstile** — free, privacy-friendly, no puzzles, native to this stack (not OSS but zero-friction).
+- **Open-source** options if self-hosting is preferred: **mCaptcha** (Rust, self-host, PoW), **Cap** (tiny PoW, OSS), **Friendly Captcha** (partly OSS). Lean mCaptcha/Cap for OSS + PoW (no user puzzles), or Turnstile for zero-ops.
+
 ## 2. Landing — commercial & attractive (`dreading-landing`)
 
 **Why:** sell the app → drive installs + donations / parish sponsorship. It's the marketing surface.
