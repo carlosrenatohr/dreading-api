@@ -106,4 +106,5 @@ The local `mongo` compose service and MariaDB are dev-only; MariaDB backs Larave
 ## More
 
 - [VISION.md](./VISION.md) — where this is headed: daily AI reflections & art, an app for every age, community analytics.
+- [IDEAS.md](./IDEAS.md) — the wider brainstorm backlog (historical backfill, second source, engagement, analytics, growth) for analysis now or later.
 - `./scripts/e2e.sh` — end-to-end check that runs the real scraper into this stack's MongoDB and asserts the endpoints serve the live readings (including a Sunday second reading).
